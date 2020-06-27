@@ -35,7 +35,14 @@ public class IntVarViewOpposite implements IntVar {
         this.x = x;
 	beliefRep = x.getSolver().getBeliefRep();
     }
-
+    @Override
+    public int[] getDomainValues() {
+        int[] domain=x.getDomainValues();
+        for (int i=0;i<x.size();i++){
+            domain[i]*=-1;
+        }
+        return domain;
+    }
     @Override
     public Solver getSolver() {
         return x.getSolver();

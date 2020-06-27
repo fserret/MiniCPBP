@@ -36,6 +36,9 @@ public interface IntVar {
      *
      * @param f the closure
      */
+
+    int[] getDomainValues();
+
     void whenBind(Procedure f);
 
     /**

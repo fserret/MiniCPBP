@@ -37,7 +37,14 @@ public class IntVarViewOffset implements IntVar {
         this.o = offset;
 	beliefRep = x.getSolver().getBeliefRep();
     }
-
+    @Override
+    public int[] getDomainValues() {
+        int[] domain=x.getDomainValues();
+        for (int i=0;i<x.size();i++){
+            domain[i]+=o;
+        }
+        return domain;
+    }
     @Override
     public Solver getSolver() {
         return x.getSolver();

@@ -57,16 +57,20 @@ public class MagicSquare {
 	}
 
 //    	DFSearch dfs = makeDfs(cp, firstFailRandomVal(xFlat));
-   	DFSearch dfs = makeDfs(cp, maxMarginalStrength(xFlat));
+   	DFSearch dfs = makeDfs(cp, firstFailEnumerative(xFlat));
 
         dfs.onSolution(() -> {
+			/*
+					System.out.println("Solution;");
                     for (int i = 0; i < n; i++) {
                         System.out.println(Arrays.toString(x[i]));
-                    }
-                }
+					}
+					System.out.print("Endsolution;");*/
+				}
+			
         );
 
-        SearchStatistics stats = dfs.solve(stat -> stat.numberOfSolutions() >= 1); // stop on first solution
+        SearchStatistics stats = dfs.solve(stat -> stat.isCompleted()); // stop when search is completed
 
         System.out.println(stats);
 
@@ -109,7 +113,7 @@ public class MagicSquare {
 			System.arraycopy(x[i],0,xFlat,i * x.length,x.length);
 		}
 
-		partialAssignments(x,n,nbFilled,nbFile);
+		partialAssignments(x,n,nbFilled,nbFile); 
 
 		// Sum on lines
 		for (int i = 0; i < n; i++) {

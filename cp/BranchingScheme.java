@@ -18,6 +18,7 @@
 
 package minicp.cp;
 
+import java.util.Arrays;
 import minicp.engine.core.IntVar;
 import minicp.engine.core.Solver;
 import minicp.search.LimitedDiscrepancyBranching;
@@ -176,7 +177,9 @@ public final class BranchingScheme {
         return () -> {
             IntVar xs = selectMin(x,
                     xi -> xi.size() > 1,
-		    xi -> 1); // any constant value
+            xi -> 1); // any constant value
+            if (tracing)
+                System.out.println("### Depth:" + x[0].getSolver().getStateManager().getLevel());
             if (xs == null)
                 return EMPTY;
             else {
@@ -197,6 +200,46 @@ public final class BranchingScheme {
     }
 
     /**
+     * First-Fail Enumerative strategy.
+     * It selects the first variable with a domain larger than one.
+     * Then it creates branches for every value in domain in order.
+     * @param x the variable on which the first fail strategy is applied.
+     * @return a first-fail branching strategy
+     * @see Factory#makeDfs(Solver, Supplier)
+     */
+    public static Supplier<Procedure[]> firstFailEnumerative(IntVar... x) {
+	boolean tracing = x[0].getSolver().tracingSearch();
+        return () -> {
+            IntVar xs = selectMin(x,
+                    xi -> xi.size() > 1,
+                    xi -> xi.size());
+
+            if (xs == null){
+                String text="Solution;";
+                for(IntVar xi : x)
+                    text+=xi.getName()+":"+Integer.toString(xi.min())+';';
+                System.out.println(text);
+                return EMPTY;
+            }
+                else {
+                    
+                    Procedure[] proc = new Procedure[xs.size()];
+                    final int[] vals=new int[xs.size()];
+                    for (int i =0;i<xs.size();i++){
+                        vals[i]=xs.getDomainValues()[i];}
+                    for (int i =0;i<xs.size();i++){
+                        final int v = vals[i];
+                        proc[i]= () -> {
+                            if (tracing)
+                                System.out.println("Branching;"+xs.getName()+":"+v+";Depth:" + x[0].getSolver().getStateManager().getLevel()+";domain:"+Arrays.toString(vals));
+                            branchEqual(xs, v);
+                            };
+                    }
+                     return branch(proc);
+                }
+        };
+    }
+    /**
      * First-Fail strategy.
      * It selects the first variable with a domain larger than one.
      * Then it creates two branches:
@@ -207,29 +250,30 @@ public final class BranchingScheme {
      * @see Factory#makeDfs(Solver, Supplier)
      */
     public static Supplier<Procedure[]> firstFail(IntVar... x) {
-	boolean tracing = x[0].getSolver().tracingSearch();
-        return () -> {
-            IntVar xs = selectMin(x,
-                    xi -> xi.size() > 1,
-                    xi -> xi.size());
-            if (xs == null)
-                return EMPTY;
-            else {
-                int v = xs.min();
-                return branch(
-			      () -> {
-				  if (tracing)
-				      System.out.println("### branching on "+xs.getName()+"="+v);
-				  branchEqual(xs, v);
-			      },
-			      () -> {
-				  if (tracing)
-				      System.out.println("### branching on "+xs.getName()+"!="+v);
-				  branchNotEqual(xs, v);
-			      } );
-            }
-        };
-    }
+        boolean tracing = x[0].getSolver().tracingSearch();
+            return () -> {
+                IntVar xs = selectMin(x,
+                        xi -> xi.size() > 1,
+                        xi -> xi.size());
+    
+                if (xs == null)
+                    return EMPTY;
+                else {
+                    int v = xs.min();
+                    return branch(
+                      () -> {
+                      if (tracing)
+                          System.out.println("### branching on "+xs.getName()+"="+v+"; Depth:" + x[0].getSolver().getStateManager().getLevel()+"; domain size:"+xs.toString());
+                      branchEqual(xs, v);
+                      },
+                      () -> {
+                      if (tracing)
+                          System.out.println("### branching on "+xs.getName()+"!="+v+"; Depth:" + x[0].getSolver().getStateManager().getLevel()+"; domain size:"+xs.toString());
+                      branchNotEqual(xs, v);
+                      } );
+                }
+            };
+        }
 
     /**
      * First-Fail strategy + random value selection.

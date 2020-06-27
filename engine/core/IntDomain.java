@@ -32,6 +32,13 @@ public interface IntDomain {
      */
     int min();
 
+    int[] getValues();
+    /**
+     * Returns the values of the domain.
+     *
+     * @return the array of values of the domain
+     */
+
     /**
      * Returns the maximum value of the domain.
      *

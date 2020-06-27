@@ -62,7 +62,7 @@ public class MiniCP implements Solver {
 
     //***** TRACING SWITCHES *****
     private static final boolean traceBP = false;
-    private static final boolean traceSearch = false;
+    private static final boolean traceSearch = true;
     //****************************
 
     public MiniCP(StateManager sm) {

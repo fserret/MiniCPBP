@@ -40,7 +40,14 @@ public class IntVarViewMul implements IntVar {
         this.x = x;
 	beliefRep = x.getSolver().getBeliefRep();
     }
-
+    @Override
+    public int[] getDomainValues() {
+        int[] domain=x.getDomainValues();
+        for (int i=0;i<x.size();i++){
+            domain[i]*=a;
+        }
+        return domain;
+    }
     @Override
     public Solver getSolver() {
         return x.getSolver();

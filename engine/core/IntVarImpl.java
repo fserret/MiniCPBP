@@ -116,6 +116,10 @@ public class IntVarImpl implements IntVar {
             }
         }
     }
+    @Override
+    public int[] getDomainValues() {
+        return domain.getValues();
+    }
 
     @Override
     public Solver getSolver() {
@@ -206,6 +210,8 @@ public class IntVarImpl implements IntVar {
 
     @Override
     public void assign(int v) {
+        if (cp.tracingSearch())
+            System.out.println("Assignment;"+this.getName()+':'+v);
         domain.removeAllBut(v, domListener);
     }
 

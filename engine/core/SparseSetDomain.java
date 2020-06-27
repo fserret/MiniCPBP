@@ -46,7 +46,9 @@ public class SparseSetDomain implements IntDomain {
 	this.cp = cp;
 	beliefRep = cp.getBeliefRep();
     }
-
+    public int[] getValues(){
+        return domainValues;
+    }
     @Override
     public int fillArray(int[] dest) {
         return domain.fillArray(dest);
