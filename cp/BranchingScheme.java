@@ -231,7 +231,7 @@ public final class BranchingScheme {
                         final int v = vals[i];
                         proc[i]= () -> {
                             if (tracing)
-                                System.out.println("Branching;"+xs.getName()+":"+v+";Depth:" + x[0].getSolver().getStateManager().getLevel()+";domain:"+Arrays.toString(vals));
+                                System.out.println("Branching;"+"Variable:"+xs.getName()+";Value:"+v+";Depth:" + x[0].getSolver().getStateManager().getLevel()+";Domain:"+Arrays.toString(vals));
                             branchEqual(xs, v);
                             };
                     }
@@ -522,3 +522,4 @@ public final class BranchingScheme {
         return new LimitedDiscrepancyBranching(branching, maxDiscrepancy);
     }
 }
+
