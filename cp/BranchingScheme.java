@@ -225,13 +225,16 @@ public final class BranchingScheme {
                     
                     Procedure[] proc = new Procedure[xs.size()];
                     final int[] vals=new int[xs.size()];
+                    final double[] marginals=new double[xs.size()];
+
                     for (int i =0;i<xs.size();i++){
-                        vals[i]=xs.getDomainValues()[i];}
+                        vals[i]=xs.getDomainValues()[i];
+                        marginals[i]=xs.marginal(vals[i]);}
                     for (int i =0;i<xs.size();i++){
                         final int v = vals[i];
                         proc[i]= () -> {
                             if (tracing)
-                                System.out.println("Branching;"+"Variable:"+xs.getName()+";Value:"+v+";Depth:" + x[0].getSolver().getStateManager().getLevel()+";Domain:"+Arrays.toString(vals));
+                                System.out.println("Branching;"+"Variable:"+xs.getName()+";Value:"+v+";Depth:" + x[0].getSolver().getStateManager().getLevel()+";Domain:"+Arrays.toString(vals)+";Marginals:"+Arrays.toString(marginals));
                             branchEqual(xs, v);
                             };
                     }
@@ -239,6 +242,73 @@ public final class BranchingScheme {
                 }
         };
     }
+
+    /**
+     * Maximum Marginal strategy.
+     * It selects an unbound variable with the largest marginal
+     * on one of the values in its domain.
+     * Then it creates two branches:
+     * the left branch assigning the variable to that value;
+     * the right branch removing this value from the domain.
+     * @param x the variable on which the max marginal strategy is applied.
+     * @return maxMarginal branching strategy
+     * @see Factory#makeDfs(Solver, Supplier)
+     */
+    public static Supplier<Procedure[]> maxMarginalEnumerative(IntVar... x) {
+        boolean tracing = x[0].getSolver().tracingSearch();
+        Belief beliefRep = x[0].getSolver().getBeliefRep();
+            return () -> {
+                IntVar xs = selectMin(x,
+                        xi -> xi.size() > 1,
+                xi -> - beliefRep.rep2std(xi.maxMarginal()));
+                if (xs == null){
+                    String text="Solution;";
+                    for(IntVar xi : x)
+                        text+=xi.getName()+":"+Integer.toString(xi.min())+';';
+                    System.out.println(text);
+                    return EMPTY;}
+                else {
+                    Procedure[] proc = new Procedure[xs.size()];
+                    final int[] vals=new int[xs.size()];
+                    final double[] marginals=new double[xs.size()];
+                    final int[] order = new int[xs.size()];
+
+                    for (int i =0;i<xs.size();i++){
+                        vals[i]=xs.getDomainValues()[i];
+                        marginals[i]=xs.marginal(vals[i]);
+                    }
+                    // Implement order in the enumeration?
+                    for (int i =0;i<xs.size();i++){
+                        final int v = vals[i];
+                        final double marginal = marginals[i];
+                        proc[i]= () -> {
+                            if (tracing)
+                                System.out.println("Branching;"+"Variable:"+xs.getName()+";Value:"+v+";Depth:" + x[0].getSolver().getStateManager().getLevel()+";Domain:"+Arrays.toString(vals)+";Marginal:"+marginal);
+                            branchEqual(xs, v);
+                            };
+                    }
+                    
+                    /*
+                    int v = xs.valueWithMaxMarginal(); 
+             
+                    return branch(
+                      () -> { 
+                      if (tracing)
+                          System.out.println("### branching on "+xs.getName()+"="+v+" marginal="+beliefRep.rep2std(xs.maxMarginal()));
+                      branchEqual(xs, v); 
+                      },
+                      () -> {
+                      if (tracing)
+                          System.out.println("### branching on "+xs.getName()+"!="+v+" marginal="+(1-beliefRep.rep2std(xs.maxMarginal())));
+                      branchNotEqual(xs, v);
+                      } );
+                    */
+                    return branch(proc);                
+                }
+            };
+        }
+    
+
     /**
      * First-Fail strategy.
      * It selects the first variable with a domain larger than one.

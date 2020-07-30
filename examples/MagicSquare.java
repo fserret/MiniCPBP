@@ -57,7 +57,7 @@ public class MagicSquare {
 	}
 
 //    	DFSearch dfs = makeDfs(cp, firstFailRandomVal(xFlat));
-   	DFSearch dfs = makeDfs(cp, firstFailEnumerative(xFlat));
+   	DFSearch dfs = makeDfs(cp, maxMarginalEnumerative(xFlat));
 
         dfs.onSolution(() -> {
 			/*
@@ -78,8 +78,9 @@ public class MagicSquare {
 
 	public static void partialAssignments(IntVar[][] vars, int n, int nbFilled, int nbFile){
 	    try {
-		Scanner scanner = new Scanner(new FileReader("minicp/examples/data/MagicSquare/magicSquare"+n+"-filled"+nbFilled+"-"+nbFile+".dat"));
-		
+		Scanner scanner = new Scanner(new FileReader("minicp/examples/data/MS_inits/magicSquare"+n+"-filled"+nbFilled+"-"+nbFile+".dat"));
+		//Scanner scanner = new Scanner(new FileReader("minicp/examples/data/MagicSquare/magicSquare"+n+"-filled"+nbFilled+"-"+nbFile+".dat"));
+
 		scanner.nextInt();
 		scanner.nextInt();
 		

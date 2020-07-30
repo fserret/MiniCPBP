@@ -90,7 +90,7 @@ public class IntVarImpl implements IntVar {
     public IntVarImpl(Solver cp, int min, int max) {
         if (min > max) throw new InvalidParameterException("at least one setValue in the domain");
         this.cp = cp;
-	beliefRep = cp.getBeliefRep();
+	    beliefRep = cp.getBeliefRep();
         domain = new SparseSetDomain(cp, min, max);
         onDomain = new StateStack<>(cp.getStateManager());
         onBind = new StateStack<>(cp.getStateManager());
